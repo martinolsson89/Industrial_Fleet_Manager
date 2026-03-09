@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Industrial_Fleet_Manager/Industrial_Fleet_Manager.Client/Industrial_Fleet_Manager.Client.csproj" />
+  <Project Path="Industrial_Fleet_Manager/Industrial_Fleet_Manager/Industrial_Fleet_Manager.csproj" />
+</Solution>
