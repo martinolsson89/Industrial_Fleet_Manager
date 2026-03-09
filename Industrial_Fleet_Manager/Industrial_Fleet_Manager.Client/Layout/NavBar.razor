@@ -1,0 +1,27 @@
+﻿
+<nav class="navbar bg-body border-bottom">
+    <div class="container">
+        <NavLink class="navbar-brand fw-semibold text-decoration-none text-reset" href="/">
+            @NavTitle
+        </NavLink>
+
+        @if (Right is not null)
+        {
+            <div class="d-flex gap-2">
+                @Right
+            </div>
+        }
+    </div>
+</nav>
+
+@code {
+
+    //Move to partial class same name +.cs NavBar.razor.cs (must be partial)
+
+    [Parameter]
+    public string NavTitle { get; set; } = "Default";
+
+    [Parameter]
+    public RenderFragment? Right { get; set; } // Childcomponent
+
+}
