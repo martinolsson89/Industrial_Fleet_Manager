@@ -10,7 +10,9 @@
             Machines="machines" 
             OnAddMachine="AddMachine" 
             OnToggleMachine="ToggleMachineState"
-            OnEditMachine="EditMachine"/>
+            OnEditMachine="EditMachine"
+            OnDeleteMachine="DeleteMachine"
+            />
     </div>
     @if (isEditModalOpen)
     {
@@ -19,15 +21,26 @@
             OnCloseModal="CloseEditModal" 
             OnSaveModal="SaveMachine" />
     }
+    @if (isDeleteModalOpen)
+    {
+        <DeleteMachineModal 
+            DeleteModel="deleteModel"
+            OnCloseModal="CloseDeleteModal"
+            OnDeleteModal="ExecuteDeleteMachine" />
+    }
 </div>
 
 @code {
     private readonly List<Machine> machines = [];
     private int nextMachineNumber = 1;
     private readonly List<string> machineNames = new () { "Mixer", "Roller", "Crusher", "Pump" };
+
     private Machine? selectedMachine;
     private Machine editModel = new();
     private bool isEditModalOpen;
+
+    private Machine deleteModel = new();
+    private bool isDeleteModalOpen;
 
     private async Task AddMachine()
     {
@@ -136,4 +149,46 @@
         selectedMachine = null;
         editModel = new Machine();
     }
+
+    private Task DeleteMachine(Machine machine)
+    {
+        selectedMachine = machine;
+
+        deleteModel = new Machine
+        {
+            Id = machine.Id,
+            Name = machine.Name,
+            IsOnline = machine.IsOnline,
+            LastData = machine.LastData,
+            LastUpdated = machine.LastUpdated
+        };
+
+        isDeleteModalOpen = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteDeleteMachine()
+    {
+        if (selectedMachine is null)
+        {
+            return;
+        }
+
+        machines.Remove(selectedMachine);
+
+        isDeleteModalOpen = false;
+        selectedMachine = null;
+        deleteModel = new Machine();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseDeleteModal()
+    {
+        isDeleteModalOpen = false;
+        selectedMachine = null;
+        deleteModel = new Machine();
+    }
+
+
 }

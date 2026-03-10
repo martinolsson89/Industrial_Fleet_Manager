@@ -39,7 +39,9 @@
                                 <ListActionButtons
                                     Machine="machine"
                                     OnToggleMachineState="HandleToggleMachine"
-                                    OnEditMachine="HandleEditMachine"/>
+                                    OnEditMachine="HandleEditMachine"
+                                    OnDeleteMachine="HandleDeleteMachine"
+                                    />
                             </td>
                         </tr>
                     }
@@ -56,15 +58,20 @@
     [Parameter]
     public EventCallback OnAddMachine { get; set; }
 
-    private Task HandleAddMachine() => OnAddMachine.InvokeAsync();
-
     [Parameter]
     public EventCallback<Machine> OnToggleMachine { get; set; }
-
-    private Task HandleToggleMachine(Machine machine) => OnToggleMachine.InvokeAsync(machine);
 
     [Parameter]
     public EventCallback<Machine> OnEditMachine { get; set; }
 
+    [Parameter]
+    public EventCallback<Machine> OnDeleteMachine { get; set; }
+
+    private Task HandleAddMachine() => OnAddMachine.InvokeAsync();
+
+    private Task HandleToggleMachine(Machine machine) => OnToggleMachine.InvokeAsync(machine);
+
     private Task HandleEditMachine(Machine machine) => OnEditMachine.InvokeAsync(machine);
+
+    private Task HandleDeleteMachine(Machine machine) => OnDeleteMachine.InvokeAsync(machine);
 }
