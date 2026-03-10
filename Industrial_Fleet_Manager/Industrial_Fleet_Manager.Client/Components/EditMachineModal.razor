@@ -1,0 +1,43 @@
+﻿<div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Machine</h5>
+                    <button type="button" class="btn-close" @onclick="HandleCloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="EditModel.Name"  />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Last Data</label>
+                        <input class="form-control" @bind="EditModel.LastData" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="HandleCloseModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="HandleSaveModal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+
+@code{
+
+    [Parameter]
+    public Machine EditModel { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnCloseModal { get; set; }
+
+    private Task HandleCloseModal() => OnCloseModal.InvokeAsync();
+
+    [Parameter]
+    public EventCallback OnSaveModal { get; set; }
+
+    private Task HandleSaveModal() => OnSaveModal.InvokeAsync();
+}

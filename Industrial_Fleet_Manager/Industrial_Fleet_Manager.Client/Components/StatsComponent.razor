@@ -1,0 +1,58 @@
+﻿<div class="bg-white rounded shadow-sm p-4 stats-panel">
+    <h4 class="mb-4 fw-semibold">Daily Stats</h4>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-cpu-fill" style="color:darkblue;" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label fw-semibold">Total Machines</span>
+                <p class="stat-value mb-0 fw-semibold">@Machines.Count</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-check-square-fill" style="color: green;" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label fw-semibold">Machines Online</span>
+                <p class="stat-value mb-0 fw-semibold">@OnlineMachines</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-power" style="color: red;" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label fw-semibold">Machines Offline</span>
+                <p class="stat-value mb-0 fw-semibold">@OfflineMachines</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-clock-fill" style="color: rebeccapurple;" aria-hidden="true"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label fw-semibold">Last Updated</span>
+                <p class="stat-value mb-0 fw-semibold">@LastUpdatedMachineName</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<Machine> Machines { get; set; } = [];
+
+    private int OnlineMachines => Machines.Count(machine => machine.IsOnline);
+
+    private int OfflineMachines => Machines.Count - OnlineMachines;
+
+    private string LastUpdatedMachineName => Machines
+        .OrderByDescending(machine => machine.LastUpdated)
+        .FirstOrDefault()?.Name ?? "No updates yet";
+}

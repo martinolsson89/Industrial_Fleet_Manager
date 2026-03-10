@@ -1,0 +1,33 @@
+﻿<div class="d-flex gap-2 flex-wrap">
+    @if (Machine.IsOnline)
+    {
+        <button @onclick="HandleToggleMachine" class="btn btn-danger btn-sm">Stop</button>
+    }
+    else
+    {
+        <button @onclick="HandleToggleMachine" class="btn btn-success btn-sm">Start</button>
+    }
+
+    <button @onclick="HandleEditMachine" class="btn btn-primary btn-sm" disabled="@(!OnEditMachine.HasDelegate)">
+        <i class="bi bi-pencil-square"></i>
+    </button>
+
+    <button class="btn btn-secondary btn-sm">
+        <i class="bi bi-trash3-fill"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    public Machine Machine { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<Machine> OnToggleMachineState { get; set; }
+
+    [Parameter]
+    public EventCallback<Machine> OnEditMachine { get; set; }
+
+    private Task HandleToggleMachine() => OnToggleMachineState.InvokeAsync(Machine);
+
+    private Task HandleEditMachine() => OnEditMachine.InvokeAsync(Machine);
+}

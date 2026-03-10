@@ -1,7 +1,139 @@
 ﻿@page "/index"
 
-<h3>Dashboard</h3>
+<div class="p-4 rounded">
+    <h3 class="fw-semibold">Dashboard</h3>
+    <p class="text-body-secondary">Overview of your industrial IoT devices.</p>
+
+    <div class="dashboard-grid mt-4">
+        <StatsComponent Machines="machines" />
+        <ListComponent 
+            Machines="machines" 
+            OnAddMachine="AddMachine" 
+            OnToggleMachine="ToggleMachineState"
+            OnEditMachine="EditMachine"/>
+    </div>
+    @if (isEditModalOpen)
+    {
+        <EditMachineModal 
+            EditModel="editModel" 
+            OnCloseModal="CloseEditModal" 
+            OnSaveModal="SaveMachine" />
+    }
+</div>
 
 @code {
+    private readonly List<Machine> machines = [];
+    private int nextMachineNumber = 1;
+    private readonly List<string> machineNames = new () { "Mixer", "Roller", "Crusher", "Pump" };
+    private Machine? selectedMachine;
+    private Machine editModel = new();
+    private bool isEditModalOpen;
 
+    private async Task AddMachine()
+    {
+        var machineNumber = nextMachineNumber++;
+        var isOnline = machineNumber % 3 != 0;
+
+        var name = PickMachineName(machineNumber);
+
+        var data = PickLastDataType(name);
+
+        machines.Add(new Machine
+        {
+            Id = Guid.NewGuid(),
+            Name = $"{name} {machineNumber:00}",
+            IsOnline = isOnline,
+            LastData = isOnline ? data : "Offline",
+            LastUpdated = DateTime.Now
+        });
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string PickMachineName(int machineNumber)
+    {
+        var random = new Random();
+        var name = machineNames[random.Next(machineNames.Count)];
+
+        return name;
+    }
+
+    private string PickLastDataType(string name)
+    {
+        string data = name switch
+        {
+            "Mixer" => "Temp: 75°C",
+            "Roller" => "RPM: 1500",
+            "Crusher" => "Amps: 34",
+            "Pump" => "Vibration 0.6g",
+            _ => "Unknown status"
+        };
+
+        return data;
+    }
+
+    private async Task ToggleMachineState(Machine machine)
+    {
+
+        if (machine.IsOnline)
+        {
+            machine.IsOnline = false;
+            machine.LastData = "Offline";
+        }
+        else
+        {
+            var machineType = machine.Name.Split(' ')[0];
+            machine.IsOnline = true;
+            machine.LastData = PickLastDataType(machineType);
+
+        }
+
+        machine.LastUpdated = DateTime.Now;
+
+
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private Task EditMachine(Machine machine)
+    {
+        selectedMachine = machine;
+
+        editModel = new Machine
+        {
+            Id = machine.Id,
+            Name = machine.Name,
+            IsOnline = machine.IsOnline,
+            LastData = machine.LastData,
+            LastUpdated = machine.LastUpdated
+        };
+
+        isEditModalOpen = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveMachine()
+    {
+        if (selectedMachine is null)
+        {
+            return;
+        }
+
+        selectedMachine.Name = editModel.Name;
+        selectedMachine.LastData = editModel.LastData;
+        selectedMachine.LastUpdated = DateTime.Now;
+
+        isEditModalOpen = false;
+        selectedMachine = null;
+        editModel = new Machine();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseEditModal()
+    {
+        isEditModalOpen = false;
+        selectedMachine = null;
+        editModel = new Machine();
+    }
 }

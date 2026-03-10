@@ -1,0 +1,70 @@
+﻿<div class="bg-white rounded shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0 fw-semibold">List of Machines</h4>
+        <button class="btn btn-secondary" @onclick="HandleAddMachine" disabled="@(!OnAddMachine.HasDelegate)">Add Machine</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Last Data</th>
+                    <th scope="col">Last Updated</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Machines.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-body-secondary py-4">No machines available.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var machine in Machines)
+                    {
+                        <tr>
+                            <td>@machine.Name</td>
+                            <td>
+                                <span class="badge @(machine.IsOnline ? "text-bg-success" : "text-bg-secondary")">
+                                    @(machine.IsOnline ? "Online" : "Offline")
+                                </span>
+                            </td>
+                            <td>@machine.LastData</td>
+                            <td>@machine.LastUpdated.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td class="text-body-secondary">
+                                <ListActionButtons
+                                    Machine="machine"
+                                    OnToggleMachineState="HandleToggleMachine"
+                                    OnEditMachine="HandleEditMachine"/>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<Machine> Machines { get; set; } = [];
+
+    [Parameter]
+    public EventCallback OnAddMachine { get; set; }
+
+    private Task HandleAddMachine() => OnAddMachine.InvokeAsync();
+
+    [Parameter]
+    public EventCallback<Machine> OnToggleMachine { get; set; }
+
+    private Task HandleToggleMachine(Machine machine) => OnToggleMachine.InvokeAsync(machine);
+
+    [Parameter]
+    public EventCallback<Machine> OnEditMachine { get; set; }
+
+    private Task HandleEditMachine(Machine machine) => OnEditMachine.InvokeAsync(machine);
+}
