@@ -1,4 +1,6 @@
-﻿<div class="bg-white rounded shadow-sm p-4 stats-panel">
+﻿@using ApexCharts
+
+<div class="bg-white rounded shadow-sm p-4 stats-panel">
     <h4 class="mb-4 fw-semibold">Daily Stats</h4>
 
     <div class="stats-grid">
@@ -42,11 +44,39 @@
             </div>
         </div>
     </div>
+    <div class="my-4 mx-2">
+        <div>
+            <h4 class="fw-semibold">Daily Stats</h4>
+        </div>
+        @if (OrderedHistory.Any())
+        {
+            <div class="container">
+                <ApexChart TItem="MachineStatusSnapshot"
+                    @key="History.Count"
+                    Title="Online Machines" 
+                    Options="ChartOptions">
+                    <ApexPointSeries TItem="MachineStatusSnapshot"
+                                     Items="OrderedHistory"
+                                     SeriesType="@SeriesType.Area"
+                                     Name="Online"
+                                     XValue="@(point => point.Sequence)"
+                                     YValue="@(point => point.OnlineCount)" />
+                </ApexChart>
+            </div>
+        }
+        else
+        {
+            <p class="text-body-secondary mb-0">No history yet</p>
+        }
+    </div>
 </div>
 
 @code {
     [Parameter]
     public IReadOnlyList<Machine> Machines { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<MachineStatusSnapshot> History { get; set; } = [];
 
     private int OnlineMachines => Machines.Count(machine => machine.IsOnline);
 
@@ -55,4 +85,21 @@
     private string LastUpdatedMachineName => Machines
         .OrderByDescending(machine => machine.LastUpdated)
         .FirstOrDefault()?.Name ?? "No updates yet";
+
+    private IReadOnlyList<MachineStatusSnapshot> OrderedHistory => History
+        .OrderBy(point => point.Sequence)
+        .ToList();
+
+    private ApexChartOptions<MachineStatusSnapshot> ChartOptions => new()
+    {
+        Colors = new List<string> { "#22C55E" }, // line + area base color (green)
+
+        Xaxis = new XAxis
+        {
+            Labels = new XAxisLabels { Show = false },
+            AxisBorder = new AxisBorder { Show = false },
+            AxisTicks = new AxisTicks { Show = false }
+        }
+    };
+
 }

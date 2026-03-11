@@ -5,7 +5,7 @@
     <p class="text-body-secondary">Overview of your industrial IoT devices.</p>
 
     <div class="dashboard-grid mt-4">
-        <StatsComponent Machines="machines" />
+        <StatsComponent Machines="machines" History="machineHistory" />
         <ListComponent 
             Machines="machines" 
             OnAddMachine="AddMachine" 
@@ -32,6 +32,7 @@
 
 @code {
     private readonly List<Machine> machines = [];
+    private readonly List<MachineStatusSnapshot> machineHistory = [];
     private int nextMachineNumber = 1;
     private readonly List<string> machineNames = new () { "Mixer", "Roller", "Crusher", "Pump" };
 
@@ -59,6 +60,8 @@
             LastData = isOnline ? data : "Offline",
             LastUpdated = DateTime.Now
         });
+
+        RecordMachineHistory();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -103,7 +106,7 @@
 
         machine.LastUpdated = DateTime.Now;
 
-
+        RecordMachineHistory();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -175,6 +178,7 @@
         }
 
         machines.Remove(selectedMachine);
+        RecordMachineHistory();
 
         isDeleteModalOpen = false;
         selectedMachine = null;
@@ -188,6 +192,16 @@
         isDeleteModalOpen = false;
         selectedMachine = null;
         deleteModel = new Machine();
+    }
+
+    private void RecordMachineHistory()
+    {
+        machineHistory.Add(new MachineStatusSnapshot
+        {
+            Sequence = machineHistory.Count + 1,
+            Timestamp = DateTime.Now,
+            OnlineCount = machines.Count(machine => machine.IsOnline)
+        });
     }
 
 
